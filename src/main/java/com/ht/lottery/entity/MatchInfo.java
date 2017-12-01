@@ -26,14 +26,14 @@ public class MatchInfo {
 	@Column(nullable = false, unique = false)
 	private String matchName;
 	
-	@Column(nullable = false, unique = false)
+	@Column(nullable = true, unique = false)
 	private String vs;
 	
 	@Column(nullable = true, unique = false)
 	private String score;
 	
-	@Column(nullable = false, unique = false)
-	private int result;
+	@Column(nullable = true, unique = false)
+	private Integer result;
 	
 	@Column
 	@CreatedDate
@@ -50,7 +50,7 @@ public class MatchInfo {
 	public String getMatchName() {
 		return matchName;
 	}
-	
+
 	public void setMatchName(String matchName) {
 		this.matchName = matchName;
 	}
@@ -62,13 +62,31 @@ public class MatchInfo {
 	public void setVs(String vs) {
 		this.vs = vs;
 	}
-	
+
+	public String getScore() {
+		return score;
+	}
+
+	public void setScore(String score) {
+		this.score = score;
+	}
+
+	public Integer getResult() {
+		return result;
+	}
+
+	public void setResult(Integer result) {
+		this.result = result;
+	}
+
 	public Date getCreateDate() {
 		return createDate;
 	}
-	
+
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
+
+	
 	
 }

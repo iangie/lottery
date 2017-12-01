@@ -28,22 +28,22 @@ public class MatchOdds {
 	@Column(nullable = false, unique = false)
 	private String matchInfoId;
 	
-	@Column(nullable = false, unique = false)
+	@Column(nullable = true, unique = false)
 	private String matchName;
 	
-	@Column(nullable = false, unique = false)
+	@Column(nullable = true, unique = false)
 	private String vs;
 	
-	@Column(nullable = false, unique = false)
+	@Column(nullable = true, unique = false)
 	private int concede;
 	
-	@Column(nullable = false, unique = false)
+	@Column(nullable = true, unique = false)
 	private double oddsWin;
 	
-	@Column(nullable = false, unique = false)
+	@Column(nullable = true, unique = false)
 	private double oddsDraw;
 	
-	@Column(nullable = false, unique = false)
+	@Column(nullable = true, unique = false)
 	private double oddsLose;
 	
 	@Column(nullable = false, unique = false)
