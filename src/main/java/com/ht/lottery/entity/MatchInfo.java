@@ -14,7 +14,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
- * @author hanlei8
+ * @author angie
  *
  */
 @Entity
@@ -28,6 +28,12 @@ public class MatchInfo {
 	
 	@Column(nullable = false, unique = false)
 	private String vs;
+	
+	@Column(nullable = true, unique = false)
+	private String score;
+	
+	@Column(nullable = false, unique = false)
+	private int result;
 	
 	@Column
 	@CreatedDate

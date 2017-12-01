@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.ht.lottery.entity.MatchOdds;
 
 /**
- * @author hanlei8
+ * @author angie
  *
  */
 public interface MatchOddsRepository extends JpaRepository<MatchOdds, Long>{

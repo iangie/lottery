@@ -30,8 +30,7 @@ import com.ht.lottery.jpa.MatchOddsRepository;
 
 
 /**
- * @author hanlei
- * 爬取每日比赛数据，场次，对阵
+ * @author angie
  *
  */
 @Service
