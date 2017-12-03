@@ -64,6 +64,14 @@ public class CompanyOdds {
 		this.id = id;
 	}
 
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
 	public String getMatchInfoId() {
 		return matchInfoId;
 	}
@@ -75,7 +83,7 @@ public class CompanyOdds {
 	public String getMatchName() {
 		return matchName;
 	}
-	
+
 	public void setMatchName(String matchName) {
 		this.matchName = matchName;
 	}
@@ -95,11 +103,11 @@ public class CompanyOdds {
 	public void setConcede(int concede) {
 		this.concede = concede;
 	}
-	
+
 	public int getStatus() {
 		return status;
 	}
-	
+
 	public void setStatus(int status) {
 		this.status = status;
 	}
@@ -135,6 +143,8 @@ public class CompanyOdds {
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
+
+	
 
 	
 	

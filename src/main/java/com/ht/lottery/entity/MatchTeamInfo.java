@@ -38,9 +38,6 @@ public class MatchTeamInfo {
 	private int level;
 	
 	@Column(nullable = true, unique = false)
-	private String country;
-	
-	@Column(nullable = true, unique = false)
 	private int matchTotal;
 	
 	@Column(nullable = true, unique = false)
@@ -148,14 +145,6 @@ public class MatchTeamInfo {
 
 	public void setLevel(int level) {
 		this.level = level;
-	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
 	}
 
 	public int getMatchTotal() {
