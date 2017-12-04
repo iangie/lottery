@@ -26,7 +26,7 @@ public class MatchTeamInfo {
 	private Long id;
 	
 	@Column(nullable = false, unique = false)
-	private String matchId;
+	private String matchInfoId;
 	
 	@Column(nullable = true, unique = false)
 	private String teamName;
@@ -115,12 +115,12 @@ public class MatchTeamInfo {
 		this.id = id;
 	}
 	
-	public String getMatchId() {
-		return matchId;
+	public String getMatchInfoId() {
+		return matchInfoId;
 	}
 	
-	public void setMatchId(String matchId) {
-		this.matchId = matchId;
+	public void setMatchInfoId(String matchInfoId) {
+		this.matchInfoId = matchInfoId;
 	}
 
 	public String getTeamName() {

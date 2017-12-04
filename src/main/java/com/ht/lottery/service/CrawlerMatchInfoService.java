@@ -149,10 +149,10 @@ public class CrawlerMatchInfoService {
 		
 		Elements divs = tr.select("td.border_left").next().select("div");
 		Element div = divs.get(0);
-		double oddsWin ; 
-		double oddsDraw ;
-		double oddsLose ;
-		if(div.select("span").get(0).text().equals("未开售")) {
+		double oddsWin = 0; 
+		double oddsDraw = 0;
+		double oddsLose = 0;
+		if(div.select("span").get(0).text().equals("未开售") || div.select("span").get(0).text().equals("0.00") || div.select("span").get(0).text().equals("")) {
 			oddsWin = 0;
 			oddsDraw = 0;
 			oddsLose = 0;
@@ -173,7 +173,7 @@ public class CrawlerMatchInfoService {
 		matchOddsRepository.save(mo0);
 		
 		div = divs.get(1);
-		if(div.select("span").get(0).text().equals("未开售")) {
+		if(div.select("span").get(0).text().equals("未开售") || div.select("span").get(0).text().equals("0.00") || div.select("span").get(0).text().equals("")) {
 			oddsWin = 0;
 			oddsDraw = 0;
 			oddsLose = 0;
@@ -215,12 +215,12 @@ public class CrawlerMatchInfoService {
 			
 		
 		MatchTeamInfo a = getTeamA(doc);
-		a.setMatchId(match.getId());
+		a.setMatchInfoId(match.getId());
 		a.setTeamName(str[0].trim());
 		matchTeamInfoRepository.save(a);
 		
 		MatchTeamInfo b = getTeamB(doc);
-		b.setMatchId(match.getId());
+		b.setMatchInfoId(match.getId());
 		b.setTeamName(str[1].trim());
 		matchTeamInfoRepository.save(b);
 	}
