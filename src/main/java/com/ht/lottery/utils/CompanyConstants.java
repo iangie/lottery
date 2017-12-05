@@ -11,7 +11,7 @@ import java.util.List;
  *
  */
 public class CompanyConstants {
-	private static List<String> list;
+	public static List<String> list;
 	static {
 		list = new ArrayList<String>();
 		list.add("Pinnacle平博");
