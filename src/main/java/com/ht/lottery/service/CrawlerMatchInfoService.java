@@ -4,6 +4,9 @@
 package com.ht.lottery.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.jsoup.Connection;
@@ -17,10 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ht.lottery.entity.CompanyOdds;
+import com.ht.lottery.entity.CompanyYaOdds;
 import com.ht.lottery.entity.MatchInfo;
 import com.ht.lottery.entity.MatchOdds;
 import com.ht.lottery.entity.MatchTeamInfo;
 import com.ht.lottery.jpa.CompanyOddsRepository;
+import com.ht.lottery.jpa.CompanyYaOddsRepository;
 import com.ht.lottery.jpa.MatchInfoRepository;
 import com.ht.lottery.jpa.MatchOddsRepository;
 import com.ht.lottery.jpa.MatchTeamInfoRepository;
@@ -49,6 +54,9 @@ public class CrawlerMatchInfoService {
 	
 	@Autowired
 	private CompanyOddsRepository companyOddsRepository;
+	
+	@Autowired
+	private CompanyYaOddsRepository companyYaOddsRepository;
 	
 	public void exe(String date){
 		logger.info("开始执行爬取比赛信息");
@@ -79,6 +87,8 @@ public class CrawlerMatchInfoService {
 				}
 			}
 		}
+		
+		companyYaOddsRepository.deleteAll();
 		
 		Elements contents =  doc.select("div.bet_content");
 		Elements contents_date = contents.select("div.bet_date");
@@ -118,19 +128,55 @@ public class CrawlerMatchInfoService {
 		match.setReport(date);
 		match.setScore(score);
 		
-		if(!matchInfoRepository.exists(id)) {
-			matchInfoRepository.save(match);
-			
-			dealMatchOdds(match, tr);
-			
-			dealFenXi(match);
-			
-			dealOuzhi(match);
-		}else {
-			
+		dealYazhi(match);
+		
+//		if(!matchInfoRepository.exists(id)) {
+//			matchInfoRepository.save(match);
+//			
+//			dealMatchOdds(match, tr);
+//			
+//			dealFenXi(match);
+//			
+//			dealOuzhi(match);
+//		}else {
+////			dealOuzhi(match);
+//		}
+		
+		
+		
+		return true;
+	}
+	
+	public void crawlerMatchResult(String report){
+		List<MatchInfo> list = this.matchInfoRepository.getMatchInfosByReport(report);
+		if(list != null && list.size() > 0) {
+			for (MatchInfo matchInfo : list) {
+				updateMatch(matchInfo);
+			}
+		}
+	}
+	
+	private boolean updateMatch(MatchInfo matchInfo){
+		String url = "http://odds.500.com/fenxi/shuju-" + matchInfo.getDataId() + ".shtml";
+		Connection con = Jsoup.connect(url);
+		Document doc = null;
+		while(true) {
+			try {
+				doc = con.get();
+				break;
+			} catch (IOException e) {
+				logger.error("抓取分析失败："+matchInfo.getVs());
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+				}
+			}
 		}
 		
+		String score = doc.select("p.odds_hd_bf").text();
+		matchInfo.setScore(score);
 		
+		this.matchInfoRepository.updateResult(matchInfo.getId(), score, matchInfo.getResult());
 		
 		return true;
 	}
@@ -225,14 +271,6 @@ public class CrawlerMatchInfoService {
 		matchTeamInfoRepository.save(b);
 	}
 	
-	public static void main(String[] args) {
-		CrawlerMatchInfoService s = new CrawlerMatchInfoService();
-		MatchInfo m = new MatchInfo();
-		m.setDataId("648107");
-		s.dealOuzhi(m);
-		
-	}
-	
 	public void dealOuzhi(MatchInfo match){
 		String url = "http://odds.500.com/fenxi/ouzhi-" + match.getDataId() + ".shtml";
 		Connection con = Jsoup.connect(url);
@@ -249,51 +287,117 @@ public class CrawlerMatchInfoService {
 				}
 			}
 		}
-		
+		List<CompanyOdds> list = new ArrayList<CompanyOdds>();
 		Elements trs = doc.getElementsByAttributeValue("xls","row");
 		for (Element tr : trs) {
 			String companyName = tr.select("td.tb_plgs").attr("title");
-			if(!CompanyConstants.constains(companyName)) {
+			if(!CompanyConstants.constainsOu(companyName)) {
 				continue;
 			}
+			
 			Elements _trs= tr.select("td.tb_plgs").next().first().select("tr");
 			Element tr0 = _trs.get(0);
+			Element tr1 = _trs.get(1);
 			
 			double oddsWin = Double.valueOf(tr0.select("td").get(0).text());
 			double oddsDraw = Double.valueOf(tr0.select("td").get(1).text());
 			double oddsLose = Double.valueOf(tr0.select("td").get(2).text());
+			double oddsWin2 = Double.valueOf(tr1.select("td").get(0).text());
+			double oddsDraw2 = Double.valueOf(tr1.select("td").get(1).text());
+			double oddsLose2 = Double.valueOf(tr1.select("td").get(2).text());
 			
-			CompanyOdds co1 = new CompanyOdds();
-			co1.setCompanyName(companyName);
-			co1.setMatchInfoId(match.getId());
-			co1.setMatchName(match.getMatchName());
-			co1.setVs(match.getVs());
-			co1.setStatus(0);
-			co1.setOddsWin(oddsWin);
-			co1.setOddsDraw(oddsDraw);
-			co1.setOddsLose(oddsLose);
-			co1.setConcede(0);
-			
-			companyOddsRepository.save(co1);
-			
-			Element tr1 = _trs.get(1);
-			oddsWin = Double.valueOf(tr1.select("td").get(0).text());
-			oddsDraw = Double.valueOf(tr1.select("td").get(1).text());
-			oddsLose = Double.valueOf(tr1.select("td").get(2).text());
-			
-			co1 = new CompanyOdds();
-			co1.setCompanyName(companyName);
-			co1.setMatchInfoId(match.getId());
-			co1.setMatchName(match.getMatchName());
-			co1.setVs(match.getVs());
-			co1.setStatus(1);
-			co1.setOddsWin(oddsWin);
-			co1.setOddsDraw(oddsDraw);
-			co1.setOddsLose(oddsLose);
-			co1.setConcede(0);
-			
-			companyOddsRepository.save(co1);
+			CompanyOdds co = this.companyOddsRepository.getCompanyOddsByCompanyNameAndMatchInfoId(companyName, match.getId());
+			if(co == null) {
+				co = new CompanyOdds();
+				co.setCompanyName(companyName);
+				co.setMatchInfoId(match.getId());
+				co.setMatchName(match.getMatchName());
+				co.setVs(match.getVs());
+				co.setOddsWin(oddsWin);
+				co.setOddsDraw(oddsDraw);
+				co.setOddsLose(oddsLose);
+				co.setOddsWin2(oddsWin2);
+				co.setOddsDraw2(oddsDraw2);
+				co.setOddsLose2(oddsLose2);
+				co.setConcede(0);
+				co.setMatchScore(match.getScore());
+				
+				list.add(co);
+			}else {
+				co.setOddsWin2(oddsWin2);
+				co.setOddsDraw2(oddsDraw2);
+				co.setOddsLose2(oddsLose2);
+				
+				companyOddsRepository.update(co.getId(), oddsWin2, oddsDraw2, oddsLose2);
+			}
 		}
+		if(list != null && list.size() > 0) {
+			companyOddsRepository.save(list);
+		}
+		
+	}
+	
+	public void updateOuzhi(String report) {
+		List<MatchInfo> list = this.matchInfoRepository.getMatchInfosByReport(report);
+		if(list != null && list.size() > 0) {
+			for (MatchInfo matchInfo : list) {
+				dealOuzhi(matchInfo);
+			}
+		}
+	}
+	
+	public void dealYazhi(MatchInfo match){
+		String url = "http://odds.500.com/fenxi/yazhi-" + match.getDataId() + ".shtml";
+		Connection con = Jsoup.connect(url);
+		Document doc = null;
+		while(true) {
+			try {
+				doc = con.get();
+				break;
+			} catch (IOException e) {
+				logger.error("抓取亚指失败："+match.getVs());
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+				}
+			}
+		}
+		List<CompanyYaOdds> list = new ArrayList<CompanyYaOdds>();
+		Elements trs = doc.getElementsByAttributeValue("xls","row");
+		for (Element tr : trs) {
+			String companyName = tr.select("td.tb_plgs").select("a").attr("title");
+			if(!CompanyConstants.constainsYa(companyName)) {
+				continue;
+			}
+			
+			Elements bodys = tr.select("tbody");
+			Element body2 = bodys.get(0);
+			Element body1 = bodys.get(1);
+			double waterlevelUpper1 = Double.valueOf(number(body1.select("td").get(0).text()));
+			double waterlevelLower1 = Double.valueOf(number(body1.select("td").get(2).text()));
+			String concede1 = concede(body1.select("td").get(1).text());
+			
+			double waterlevelUpper2 = Double.valueOf(number(body2.select("td").get(0).text()));
+			double waterlevelLower2 = Double.valueOf(number(body2.select("td").get(2).text()));
+			String concede2 = concede(body2.select("td").get(1).text());
+			
+			CompanyYaOdds co = new CompanyYaOdds();
+			co.setCompanyName(companyName);
+			co.setMatchInfoId(match.getId());
+			co.setMatchName(match.getMatchName());
+			co.setVs(match.getVs());
+			co.setConcede1(concede1);
+			co.setWaterlevelUpper1(waterlevelUpper1);
+			co.setWaterlevelLower1(waterlevelLower1);
+			co.setConcede2(concede2);
+			co.setWaterlevelUpper2(waterlevelUpper2);
+			co.setWaterlevelLower2(waterlevelLower2);
+			
+			co.setMatchScore(match.getScore());
+			
+			list.add(co);
+		}
+		companyYaOddsRepository.save(list);
 	}
 	
 	private MatchTeamInfo getTeamA(Document doc){
@@ -400,7 +504,13 @@ public class CrawlerMatchInfoService {
 	}
 	
 	private String number(String text) {
-        return Pattern.compile("[^0-9]").matcher(text).replaceAll("");
+		return text.replaceAll("↓", "").replaceAll("↑", "");
+//        return Pattern.compile("[^0-9]").matcher(text).replaceAll("");
+    }
+	
+	private String concede(String text) {
+		String[] strs = text.split(" ");
+		return strs[0];
     }
 
 }

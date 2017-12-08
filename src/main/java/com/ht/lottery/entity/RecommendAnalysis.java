@@ -3,12 +3,15 @@
  */
 package com.ht.lottery.entity;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
@@ -17,22 +20,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class OddsResultAnalysis {
+public class RecommendAnalysis {
 	@Id
 	@GeneratedValue
 	private Long id;
-	
-	@Column(nullable = true, unique = false)
-	private String companyName;
-	
-	@Column(nullable = true, unique = false)
-	private String matchName;
-	
-	@Column(nullable = true, unique = false)
-	private int flag;
-	
-	@Column(nullable = true, unique = false)
-	private int upOrDown;
 	
 	@Column(nullable = true, unique = false)
 	private int success;
@@ -44,7 +35,11 @@ public class OddsResultAnalysis {
 	private double rate;
 	
 	@Column(nullable = true, unique = false)
-	private String ran;
+	private String report;
+	
+	@Column(nullable = false, unique = false)
+	@CreatedDate
+	private Date createDate;
 
 	public Long getId() {
 		return id;
@@ -52,38 +47,6 @@ public class OddsResultAnalysis {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getCompanyName() {
-		return companyName;
-	}
-
-	public void setCompanyName(String companyName) {
-		this.companyName = companyName;
-	}
-
-	public String getMatchName() {
-		return matchName;
-	}
-
-	public void setMatchName(String matchName) {
-		this.matchName = matchName;
-	}
-
-	public int getFlag() {
-		return flag;
-	}
-
-	public void setFlag(int flag) {
-		this.flag = flag;
-	}
-
-	public int getUpOrDown() {
-		return upOrDown;
-	}
-
-	public void setUpOrDown(int upOrDown) {
-		this.upOrDown = upOrDown;
 	}
 
 	public int getSuccess() {
@@ -101,23 +64,29 @@ public class OddsResultAnalysis {
 	public void setTotal(int total) {
 		this.total = total;
 	}
-	
+
 	public double getRate() {
 		return rate;
 	}
-	
+
 	public void setRate(double rate) {
 		this.rate = rate;
 	}
 
-
-	public String getRan() {
-		return ran;
-	}
-	
-	public void setRan(String ran) {
-		this.ran = ran;
+	public String getReport() {
+		return report;
 	}
 
-	
+	public void setReport(String report) {
+		this.report = report;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
 }

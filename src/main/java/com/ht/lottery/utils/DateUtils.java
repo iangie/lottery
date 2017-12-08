@@ -25,7 +25,7 @@ public class DateUtils {
      * @throws ParseException
      */
     public static String getDate(String date, int i) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(sdf.parse(date));
         calendar.add(Calendar.DATE, i);
@@ -39,7 +39,7 @@ public class DateUtils {
      */
     //获得昨天日期
     public static String getYesterday() {
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat format = new SimpleDateFormat("yyyyMMdd");
         String date = DateUtils.addSubtractDay(format, -1);
         return date;
     }
@@ -59,7 +59,7 @@ public class DateUtils {
 
     //获得当前日期
     public static String getToday() {
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat format = new SimpleDateFormat("yyyyMMdd");
         String date = DateUtils.addSubtractDay(format, 0);
         return date;
     }

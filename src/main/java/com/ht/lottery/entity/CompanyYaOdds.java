@@ -20,7 +20,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class CompanyOdds {
+public class CompanyYaOdds {
 	@Id
 	@GeneratedValue
 	private Long id;
@@ -38,32 +38,32 @@ public class CompanyOdds {
 	private Integer matchResult;
 	
 	@Column(nullable = true, unique = false)
+	private Integer concedeResult;
+	
+	@Column(nullable = true, unique = false)
 	private String matchScore;
 	
 	@Column(nullable = true, unique = false)
 	private String vs;
 	
 	@Column(nullable = true, unique = false)
-	private int concede;
+	private double waterlevelUpper1;
 	
 	@Column(nullable = true, unique = false)
-	private double oddsWin;
+	private String concede1;
 	
 	@Column(nullable = true, unique = false)
-	private double oddsDraw;
+	private double waterlevelLower1;
 	
 	@Column(nullable = true, unique = false)
-	private double oddsLose;
+	private double waterlevelUpper2;
 	
 	@Column(nullable = true, unique = false)
-	private double oddsWin2;
+	private String concede2;
 	
 	@Column(nullable = true, unique = false)
-	private double oddsDraw2;
-	
-	@Column(nullable = true, unique = false)
-	private double oddsLose2;
-	
+	private double waterlevelLower2;
+	 
 	@Column(nullable = true, unique = false)
 	@CreatedDate
 	private Date createDate;
@@ -108,6 +108,16 @@ public class CompanyOdds {
 		this.matchResult = matchResult;
 	}
 
+	public Integer getConcedeResult() {
+		if(this.concede2.equals("平手")) {
+		}
+		return concedeResult;
+	}
+
+	public void setConcedeResult(Integer concedeResult) {
+		this.concedeResult = concedeResult;
+	}
+
 	public String getMatchScore() {
 		return matchScore;
 	}
@@ -138,60 +148,52 @@ public class CompanyOdds {
 		this.vs = vs;
 	}
 
-	public int getConcede() {
-		return concede;
+	public double getWaterlevelUpper1() {
+		return waterlevelUpper1;
 	}
 
-	public void setConcede(int concede) {
-		this.concede = concede;
+	public void setWaterlevelUpper1(double waterlevelUpper1) {
+		this.waterlevelUpper1 = waterlevelUpper1;
 	}
 
-	public double getOddsWin() {
-		return oddsWin;
+	public String getConcede1() {
+		return concede1;
 	}
 
-	public void setOddsWin(double oddsWin) {
-		this.oddsWin = oddsWin;
+	public void setConcede1(String concede1) {
+		this.concede1 = concede1;
 	}
 
-	public double getOddsDraw() {
-		return oddsDraw;
+	public double getWaterlevelLower1() {
+		return waterlevelLower1;
 	}
 
-	public void setOddsDraw(double oddsDraw) {
-		this.oddsDraw = oddsDraw;
+	public void setWaterlevelLower1(double waterlevelLower1) {
+		this.waterlevelLower1 = waterlevelLower1;
 	}
 
-	public double getOddsLose() {
-		return oddsLose;
+	public double getWaterlevelUpper2() {
+		return waterlevelUpper2;
 	}
 
-	public void setOddsLose(double oddsLose) {
-		this.oddsLose = oddsLose;
+	public void setWaterlevelUpper2(double waterlevelUpper2) {
+		this.waterlevelUpper2 = waterlevelUpper2;
 	}
 
-	public double getOddsWin2() {
-		return oddsWin2;
+	public String getConcede2() {
+		return concede2;
 	}
 
-	public void setOddsWin2(double oddsWin2) {
-		this.oddsWin2 = oddsWin2;
+	public void setConcede2(String concede2) {
+		this.concede2 = concede2;
 	}
 
-	public double getOddsDraw2() {
-		return oddsDraw2;
+	public double getWaterlevelLower2() {
+		return waterlevelLower2;
 	}
 
-	public void setOddsDraw2(double oddsDraw2) {
-		this.oddsDraw2 = oddsDraw2;
-	}
-
-	public double getOddsLose2() {
-		return oddsLose2;
-	}
-
-	public void setOddsLose2(double oddsLose2) {
-		this.oddsLose2 = oddsLose2;
+	public void setWaterlevelLower2(double waterlevelLower2) {
+		this.waterlevelLower2 = waterlevelLower2;
 	}
 
 	public Date getCreateDate() {
@@ -201,6 +203,9 @@ public class CompanyOdds {
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
 	}
+
+	
+	
 
 	
 }

@@ -11,27 +11,47 @@ import java.util.List;
  *
  */
 public class CompanyConstants {
-	public static List<String> list;
+	public static List<String> oulist;
+	public static List<String> yalist;
 	static {
-		list = new ArrayList<String>();
-		list.add("Pinnacle平博");
-		list.add("澳门");
-		list.add("威廉希尔");
-		list.add("立博");
-		list.add("伟德");
-		list.add("必发");
-		list.add("皇冠");
-		list.add("易胜博");
-		list.add("SportingBet (博天堂)");
-		list.add("Bet365");
-		list.add("Bwin");
-		list.add("Eurobet");
-		list.add("SNAI");
-		list.add("Interwetten");
-		list.add("竞彩官方");
+		oulist = new ArrayList<String>();
+		oulist.add("Pinnacle平博");
+		oulist.add("澳门");
+		oulist.add("威廉希尔");
+		oulist.add("立博");
+		oulist.add("伟德");
+		oulist.add("必发");
+		oulist.add("皇冠");
+		oulist.add("易胜博");
+		oulist.add("SportingBet (博天堂)");
+		oulist.add("Bet365");
+		oulist.add("Bwin");
+		oulist.add("Eurobet");
+		oulist.add("SNAI");
+		oulist.add("Interwetten");
+		oulist.add("竞彩官方");
+		
+		yalist = new ArrayList<String>();
+		
+		yalist.add("澳门");
+		yalist.add("Bet365");
+		yalist.add("皇冠");
+		yalist.add("易胜博");
+		yalist.add("伟德");
+		yalist.add("Pinnacle平博");
+		yalist.add("10BET");
+		yalist.add("利记");
+		yalist.add("Unibet (优胜客)");
+		yalist.add("Mansion88 (明升)");
+		yalist.add("金宝博");
+		yalist.add("香港马会");
 	}
 	
-	public static boolean constains(String company) {
-		return list.contains(company);
+	public static boolean constainsOu(String company) {
+		return oulist.contains(company);
+	}
+	
+	public static boolean constainsYa(String company) {
+		return yalist.contains(company);
 	}
 }

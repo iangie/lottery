@@ -39,24 +39,114 @@ public class AnalysisDataService {
 	
 	@Autowired
 	private OddsResultAnalysisRepository oddsResultAnalysisRepository;
+	
 	public void exe() {
 //		oddsResultAnalysisRepository.deleteAll();
 		
-		double od1 = 2.5;
-		double od2 = 1.9;
+		double od1 = 1.5;
+		double od2 = 1.2;
 		int flag = 0;
+		int upOrDown = 2;
 		List<MatchInfo> matchInfos = matchInfoRepository.getMatchInfosByReportBetween("20170101", "20171231");
-		List<String> list = CompanyConstants.list;
+		List<String> list = CompanyConstants.oulist;
 		for (String string : list) {
-			init(matchInfos, string, od1, od2, flag);
+			init2(matchInfos, string, od1, od2, flag, upOrDown);
 		}
 	}
 	
-	private void init(List<MatchInfo> matchInfos, String name, double od1, double od2, int flag) {
+	private void init2(List<MatchInfo> matchInfos, String name, double od1, double od2, int flag, int upOrDown) {
 		List<CompanyOdds> companyOdds = companyOddsRepository.getCompanyOddsByCompanyName(name);
 		Map<String, CompanyOdds> companyOddsMap = new HashMap<String, CompanyOdds>();
 		for (CompanyOdds co : companyOdds) {
-			companyOddsMap.put(co.getMatchInfoId()+"_"+co.getStatus(), co);
+			companyOddsMap.put(co.getMatchInfoId(), co);
+		}
+		List<CompanyOdds2> list = new ArrayList<CompanyOdds2>();
+		for (MatchInfo matchInfo : matchInfos) {
+			if(matchInfo.getResult() == null)
+				continue;
+			CompanyOdds2 odds2 = new CompanyOdds2();
+			int result = matchInfo.getResult();
+			odds2.setResult(result);
+			
+			CompanyOdds o1 = companyOddsMap.get(matchInfo.getId());
+			if(o1 != null) {
+				odds2.setCompanyName(o1.getCompanyName());
+				odds2.setMatchName(o1.getMatchName());
+				odds2.setOddsWin1(o1.getOddsWin());
+				odds2.setOddsDraw1(o1.getOddsDraw());
+				odds2.setOddsLose1(o1.getOddsLose());
+				odds2.setOddsWin2(o1.getOddsWin2());
+				odds2.setOddsDraw2(o1.getOddsDraw2());
+				odds2.setOddsLose2(o1.getOddsLose2());
+				odds2.setO1(od1);
+				odds2.setO2(od2);
+				odds2.setFlag(flag);
+				list.add(odds2);
+			}
+		}
+		
+		Map<String, OddsResultAnalysis> map = new HashMap<String, OddsResultAnalysis>();
+		List<OddsResultAnalysis> all = new ArrayList<OddsResultAnalysis>();
+		for (CompanyOdds2 companyOdds2 : list) {
+			String matchName = companyOdds2.getMatchName();
+			String companyName = companyOdds2.getCompanyName();
+			OddsResultAnalysis analysis = null;
+			if(map.containsKey(matchName)) {
+				analysis = map.get(matchName);
+			}else {
+				analysis = new OddsResultAnalysis();
+				analysis.setCompanyName(companyName);
+				analysis.setMatchName(matchName);
+				analysis.setFlag(flag);
+				analysis.setRan(od2+"-"+od1);
+				analysis.setUpOrDown(upOrDown);
+				map.put(matchName, analysis);
+				
+				all.add(analysis);
+			}
+			
+			if(upOrDown == 1) {
+				analysis.setSuccess(analysis.getSuccess()+companyOdds2.getR5());
+				analysis.setTotal(analysis.getTotal() + companyOdds2.getR5_());
+			}else {
+				analysis.setSuccess(analysis.getSuccess()+companyOdds2.getR6());
+				analysis.setTotal(analysis.getTotal() + companyOdds2.getR6_());
+			}
+			
+			
+			
+			OddsResultAnalysis totalAnalysis = null;
+			if(map.containsKey(companyName)) {
+				totalAnalysis = map.get(companyName);
+			}else {
+				totalAnalysis = new OddsResultAnalysis();
+				totalAnalysis.setCompanyName(companyName);
+				totalAnalysis.setMatchName("合计");
+				totalAnalysis.setFlag(flag);
+				totalAnalysis.setRan(od2+"-"+od1);
+				totalAnalysis.setUpOrDown(upOrDown);
+				map.put(companyName, totalAnalysis);
+				
+				all.add(totalAnalysis);
+			}
+			
+			if(upOrDown == 1) {
+				totalAnalysis.setSuccess(totalAnalysis.getSuccess()+companyOdds2.getR5());
+				totalAnalysis.setTotal(totalAnalysis.getTotal() + companyOdds2.getR5_());
+			}else {
+				totalAnalysis.setSuccess(totalAnalysis.getSuccess()+companyOdds2.getR6());
+				totalAnalysis.setTotal(totalAnalysis.getTotal() + companyOdds2.getR6_());
+			}
+		}
+		
+		oddsResultAnalysisRepository.save(all);
+	}
+	
+	private void init(List<MatchInfo> matchInfos, String name, double od1, double od2, int flag, int upOrDown) {
+		List<CompanyOdds> companyOdds = companyOddsRepository.getCompanyOddsByCompanyName(name);
+		Map<String, CompanyOdds> companyOddsMap = new HashMap<String, CompanyOdds>();
+		for (CompanyOdds co : companyOdds) {
+//			companyOddsMap.put(co.getMatchInfoId()+"_"+co.getStatus(), co);
 		}
 		List<CompanyOdds2> list = new ArrayList<CompanyOdds2>();
 		for (MatchInfo matchInfo : matchInfos) {
@@ -87,26 +177,44 @@ public class AnalysisDataService {
 		Map<String, OddsResultAnalysis> map = new HashMap<String, OddsResultAnalysis>();
 		List<OddsResultAnalysis> all = new ArrayList<OddsResultAnalysis>();
 		for (CompanyOdds2 companyOdds2 : list) {
-			String cname = companyOdds2.getMatchName();
+			String matchName = companyOdds2.getMatchName();
+			String companyName = companyOdds2.getCompanyName();
 			OddsResultAnalysis analysis = null;
-			if(map.containsKey(cname)) {
-				analysis = map.get(cname);
+			if(map.containsKey(matchName)) {
+				analysis = map.get(matchName);
 			}else {
 				analysis = new OddsResultAnalysis();
-				analysis.setCompanyName(companyOdds2.getCompanyName());
-				analysis.setMatchName(cname);
+				analysis.setCompanyName(companyName);
+				analysis.setMatchName(matchName);
 				analysis.setFlag(flag);
 				analysis.setRan(od2+"-"+od1);
-				analysis.setUpOrDown(1);
-				map.put(cname, analysis);
+				analysis.setUpOrDown(upOrDown);
+				map.put(matchName, analysis);
 				
 				all.add(analysis);
 			}
 			
 			
 			
-			analysis.setSuccess(analysis.getSuccess()+companyOdds2.getR5());
-			analysis.setTotal(analysis.getTotal() + companyOdds2.getR5_());
+			analysis.setSuccess(analysis.getSuccess()+companyOdds2.getR6());
+			analysis.setTotal(analysis.getTotal() + companyOdds2.getR6_());
+			
+			OddsResultAnalysis totalAnalysis = null;
+			if(map.containsKey(companyName)) {
+				totalAnalysis = map.get(companyName);
+			}else {
+				totalAnalysis = new OddsResultAnalysis();
+				totalAnalysis.setCompanyName(companyName);
+				totalAnalysis.setMatchName("合计");
+				totalAnalysis.setFlag(flag);
+				totalAnalysis.setRan(od2+"-"+od1);
+				totalAnalysis.setUpOrDown(upOrDown);
+				map.put(companyName, totalAnalysis);
+				
+				all.add(totalAnalysis);
+			}
+			totalAnalysis.setSuccess(totalAnalysis.getSuccess()+companyOdds2.getR6());
+			totalAnalysis.setTotal(totalAnalysis.getTotal() + companyOdds2.getR6_());
 		}
 		
 		oddsResultAnalysisRepository.save(all);

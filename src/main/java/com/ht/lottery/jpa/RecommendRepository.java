@@ -10,18 +10,18 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ht.lottery.entity.MatchInfo;
+import com.ht.lottery.entity.CompanyOdds;
+import com.ht.lottery.entity.Recommend;
 
 /**
  * @author angie
  *
  */
-public interface MatchInfoRepository extends JpaRepository<MatchInfo, String>{
-	List<MatchInfo> getMatchInfosByReportBetween(String report1, String report2);
-	List<MatchInfo> getMatchInfosByReport(String report);
-	
-	@Query("update MatchInfo set score=?2,result=?3 where id=?1")
+public interface RecommendRepository extends JpaRepository<Recommend, Long>{
+	@Query("delete from Recommend where report=?1")
 	@Modifying
 	@Transactional
-	void updateResult(String id, String score, int result);
+	void deleteByReport(String report);
+	
+	List<Recommend> getRecommendsByReport(String report);
 }
