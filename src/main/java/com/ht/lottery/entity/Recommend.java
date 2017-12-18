@@ -50,6 +50,9 @@ public class Recommend {
 	@Column(nullable = false, unique = false)
 	@CreatedDate
 	private Date createDate;
+	
+	@Column(nullable = true, unique = false)
+	private Integer matchResult;
 
 	public Long getId() {
 		return id;
@@ -123,6 +126,13 @@ public class Recommend {
 		this.createDate = createDate;
 	}
 
+	public Integer getMatchResult() {
+		return matchResult;
+	}
+	
+	public void setMatchResult(Integer matchResult) {
+		this.matchResult = matchResult;
+	}
 	
 
 }

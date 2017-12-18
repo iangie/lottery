@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +23,7 @@ import com.ht.lottery.utils.DateUtils;
 @RestController
 @SpringBootApplication
 @EnableJpaAuditing
+@EnableScheduling
 public class LotteryApplication {
 	
 	private static final Logger logger = LoggerFactory.getLogger(LotteryApplication.class);
@@ -34,27 +37,71 @@ public class LotteryApplication {
 	@Autowired
 	private RecommendService recommendService;
 	
+	@RequestMapping("/f")
+	public String f() {
+		logger.info("开始");
+		double od1 = 3.5;
+		double od2 = 2.5;
+		int flag = 3;
+		int upOrDown = 1;
+		analysisDataService.exe(od1, od2, flag, upOrDown);
+		
+		logger.info("完成");
+		return "success";
+	}
+	
+	@RequestMapping("/ya")
+	public String ya() {
+		logger.info("开始");
+		analysisDataService.exeYazhi();
+		
+		logger.info("完成");
+		return "success";
+	}
+	
+	@RequestMapping("/s")
+	public String start() {
+		logger.info("开始");
+		String yestoday = DateUtils.getYesterday();
+		crawlerMatchInfoService.crawlerMatchResult(yestoday);
+		
+		recommendService.exeAnalysis(yestoday);
+		
+		String today = DateUtils.getToday("yyyy-MM-dd");
+		crawlerMatchInfoService.exe(today);
+		
+		today = DateUtils.getToday();
+		
+		recommendService.exe(today);
+		
+		logger.info("完成");
+		return "success";
+	}
+	
+//	@Scheduled(fixedRate = 3600000)
+	public String schedul() {
+		logger.info("开始");
+		String today = DateUtils.getToday();
+		crawlerMatchInfoService.updateOuzhi(today);
+		logger.info("完成");
+		return "success";
+	}
+	
+	
 	@RequestMapping("/")
 	public String index() {
-		String date = "2017-01-01";
-//		for (int i = 0; i < 1; i++) {
-//			try {
-//				String d = DateUtils.getDate(date, i);
-//				logger.info("处理："+d);
-//				crawlerMatchInfoService.exe(d);
-//			} catch (ParseException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		analysisDataService.exe();
-		System.out.println("完成");
+		logger.info("开始");
+//		String date = "2017-12-12";
+		String today = DateUtils.getToday("yyyy-MM-dd");
+		crawlerMatchInfoService.exe(today);
+		logger.info("完成");
 		return "success";
 	}
 	
 	@RequestMapping("/r/{report}")
 	public String r(@PathVariable String report) {
 //		String report = "20171207";
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < 1; i++) {
 			try {
 				String d = DateUtils.getDate(report, i);
 				logger.info("处理："+d);
@@ -67,8 +114,25 @@ public class LotteryApplication {
 		return "success";
 	}
 	
+	@RequestMapping("updateYazhi")
+	public String updateYazhi() {
+		String report = "20171028";
+		for (int i = 0; i < 31; i++) {
+			try {
+				String d = DateUtils.getDate(report, i);
+				logger.info("处理："+d);
+				crawlerMatchInfoService.updateYazhi(d);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		logger.info("完成");
+		return "success";
+	}
+	
 	@RequestMapping("/updateOuzhi/{report}")
 	public String updateOuzhi(@PathVariable String report) {
+		System.out.println("开始");
 		this.crawlerMatchInfoService.updateOuzhi(report);
 		System.out.println("完成");
 		return "success";
@@ -77,6 +141,21 @@ public class LotteryApplication {
 	@RequestMapping("/updateResult/{report}")
 	public String updateResult(@PathVariable String report) {
 		this.crawlerMatchInfoService.crawlerMatchResult(report);
+		System.out.println("完成");
+		return "success";
+	}
+	
+	@RequestMapping("/exeAnalysis/{report}")
+	public String exeAnalysis(@PathVariable String report) {
+		for (int i = 0; i < 1; i++) {
+			try {
+				String d = DateUtils.getDate(report, i);
+				logger.info("处理："+d);
+				recommendService.exeAnalysis(d);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 		System.out.println("完成");
 		return "success";
 	}

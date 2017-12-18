@@ -29,6 +29,7 @@ import com.ht.lottery.jpa.CompanyYaOddsRepository;
 import com.ht.lottery.jpa.MatchInfoRepository;
 import com.ht.lottery.jpa.MatchOddsRepository;
 import com.ht.lottery.jpa.MatchTeamInfoRepository;
+import com.ht.lottery.jpa.RecommendRepository;
 import com.ht.lottery.utils.CompanyConstants;
 import com.ht.lottery.utils.DateUtils;
 
@@ -57,6 +58,9 @@ public class CrawlerMatchInfoService {
 	
 	@Autowired
 	private CompanyYaOddsRepository companyYaOddsRepository;
+	
+	@Autowired
+	private RecommendRepository recommendRepository;
 	
 	public void exe(String date){
 		logger.info("开始执行爬取比赛信息");
@@ -88,7 +92,6 @@ public class CrawlerMatchInfoService {
 			}
 		}
 		
-		companyYaOddsRepository.deleteAll();
 		
 		Elements contents =  doc.select("div.bet_content");
 		Elements contents_date = contents.select("div.bet_date");
@@ -128,19 +131,23 @@ public class CrawlerMatchInfoService {
 		match.setReport(date);
 		match.setScore(score);
 		
-		dealYazhi(match);
+//		dealYazhi(match);
 		
-//		if(!matchInfoRepository.exists(id)) {
-//			matchInfoRepository.save(match);
-//			
-//			dealMatchOdds(match, tr);
-//			
-//			dealFenXi(match);
-//			
-//			dealOuzhi(match);
-//		}else {
-////			dealOuzhi(match);
-//		}
+		if(!matchInfoRepository.exists(id)) {
+			matchInfoRepository.save(match);
+			
+			dealMatchOdds(match, tr);
+			
+			dealFenXi(match);
+			
+			dealOuzhi(match);
+			
+			dealYazhi(match);
+		}else {
+			dealOuzhi(match);
+			
+			dealYazhi(match);
+		}
 		
 		
 		
@@ -174,9 +181,14 @@ public class CrawlerMatchInfoService {
 		}
 		
 		String score = doc.select("p.odds_hd_bf").text();
-		matchInfo.setScore(score);
+		if(score.contains(":")) {
+			matchInfo.setScore(score);
+			
+			this.matchInfoRepository.updateResult(matchInfo.getId(), score, matchInfo.getResult());
+			
+			this.recommendRepository.updateMatchResult(matchInfo.getId(), matchInfo.getResult());
+		}
 		
-		this.matchInfoRepository.updateResult(matchInfo.getId(), score, matchInfo.getResult());
 		
 		return true;
 	}
@@ -346,6 +358,15 @@ public class CrawlerMatchInfoService {
 		}
 	}
 	
+	public void updateYazhi(String report) {
+		List<MatchInfo> list = this.matchInfoRepository.getMatchInfosByReport(report);
+		if(list != null && list.size() > 0) {
+			for (MatchInfo matchInfo : list) {
+				dealYazhi(matchInfo);
+			}
+		}
+	}
+	
 	public void dealYazhi(MatchInfo match){
 		String url = "http://odds.500.com/fenxi/yazhi-" + match.getDataId() + ".shtml";
 		Connection con = Jsoup.connect(url);
@@ -373,12 +394,12 @@ public class CrawlerMatchInfoService {
 			Elements bodys = tr.select("tbody");
 			Element body2 = bodys.get(0);
 			Element body1 = bodys.get(1);
-			double waterlevelUpper1 = Double.valueOf(number(body1.select("td").get(0).text()));
-			double waterlevelLower1 = Double.valueOf(number(body1.select("td").get(2).text()));
+			double waterlevelUpper1 = Double.valueOf(number_ya(body1.select("td").get(0).text()));
+			double waterlevelLower1 = Double.valueOf(number_ya(body1.select("td").get(2).text()));
 			String concede1 = concede(body1.select("td").get(1).text());
 			
-			double waterlevelUpper2 = Double.valueOf(number(body2.select("td").get(0).text()));
-			double waterlevelLower2 = Double.valueOf(number(body2.select("td").get(2).text()));
+			double waterlevelUpper2 = Double.valueOf(number_ya(body2.select("td").get(0).text()));
+			double waterlevelLower2 = Double.valueOf(number_ya(body2.select("td").get(2).text()));
 			String concede2 = concede(body2.select("td").get(1).text());
 			
 			CompanyYaOdds co = new CompanyYaOdds();
@@ -503,9 +524,13 @@ public class CrawlerMatchInfoService {
 		return team;
 	}
 	
-	private String number(String text) {
+	private String number_ya(String text) {
 		return text.replaceAll("↓", "").replaceAll("↑", "");
-//        return Pattern.compile("[^0-9]").matcher(text).replaceAll("");
+    }
+	
+	private String number(String text) {
+//		return text.replaceAll("↓", "").replaceAll("↑", "");
+        return Pattern.compile("[^0-9]").matcher(text).replaceAll("").replaceAll("↓", "").replaceAll("↑", "");
     }
 	
 	private String concede(String text) {

@@ -31,6 +31,14 @@ public class DateUtils {
         calendar.add(Calendar.DATE, i);
         return sdf.format(calendar.getTime());
     }
+    
+    public static String getDate(String date, int i, String format) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(sdf.parse(date));
+        calendar.add(Calendar.DATE, i);
+        return sdf.format(calendar.getTime());
+    }
 
     /**
      * yyyyMMdd
@@ -60,6 +68,12 @@ public class DateUtils {
     //获得当前日期
     public static String getToday() {
         DateFormat format = new SimpleDateFormat("yyyyMMdd");
+        String date = DateUtils.addSubtractDay(format, 0);
+        return date;
+    }
+    
+    public static String getToday(String f) {
+        DateFormat format = new SimpleDateFormat(f);
         String date = DateUtils.addSubtractDay(format, 0);
         return date;
     }

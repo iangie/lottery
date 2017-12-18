@@ -178,6 +178,7 @@ public class RecommendService {
 	}
 	
 	public void exe(String report) {
+		recommendRepository.deleteByReport(report);
 		List<MatchInfo> list = matchInfoRepository.getMatchInfosByReport(report);
 		if(list != null && list.size() > 0 ) {
 			Map<String, List<OddsResultAnalysis>> resultsMap = new HashMap<String, List<OddsResultAnalysis>>();
@@ -192,6 +193,12 @@ public class RecommendService {
 				List<OddsResultAnalysis> results = resultsMap.get(matchName);
 				if(results == null) {
 					results = oddsResultAnalysisRepository.getOddsResultAnalysisByMatchNameAndTotalGreaterThanEqualOrderByRateDesc(matchName, 10);
+					if(results == null || results.size() == 0) {
+						results = oddsResultAnalysisRepository.getOddsResultAnalysisByMatchNameAndTotalGreaterThanEqualOrderByRateDesc(matchName, 5);
+					}
+					if(results == null || results.size() == 0) {
+						results = oddsResultAnalysisRepository.getOddsResultAnalysisByMatchNameAndTotalGreaterThanEqualOrderByRateDesc("合计", 10);
+					}
 					resultsMap.put(matchName, results);
 				}
 				
@@ -278,7 +285,7 @@ public class RecommendService {
 						}
 					}
 					
-					if(max >= 0.7) {
+//					if(max >= 0.7) {
 						System.out.println(matchInfoId + ":rate is " + max +" result is " + rec + " and match result is :"+matchInfo.getResult());
 						Recommend recommend = new Recommend();
 						recommend.setMatchInfoId(matchInfoId);
@@ -292,7 +299,7 @@ public class RecommendService {
 						recommend.setRecmmend(rec);
 						
 						result.add(recommend);
-					}
+//					}
 				}
 			}
 			
@@ -317,25 +324,30 @@ public class RecommendService {
 				int total = 0;
 				
 				for (Recommend recommend : recommends) {
+					if(recommend.getRate()<0.7)
+						continue;
 					MatchInfo matchInfo = map.get(recommend.getMatchInfoId());
-					if(matchInfo != null) {
+					if(matchInfo != null && matchInfo.getResult() != null) {
 						if(matchInfo.getResult().equals(recommend.getRecmmend())){
 							success ++;
 						}
 						total ++;
 					}
 				}
-				
-				RecommendAnalysis analysis = new RecommendAnalysis();
-				double r = (double)success/total;
-				BigDecimal b = new BigDecimal(r);  
-				r = b.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();  
-				analysis.setRate(r);
-				analysis.setSuccess(success);
-				analysis.setTotal(total);
-				analysis.setReport(report);
-				
-				recommendAnalysisRepository.save(analysis);
+				if(total > 0) {
+					RecommendAnalysis analysis = new RecommendAnalysis();
+					double r = (double)success/total;
+					BigDecimal b = new BigDecimal(r);  
+					r = b.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();  
+					analysis.setRate(r);
+					analysis.setSuccess(success);
+					analysis.setTotal(total);
+					analysis.setReport(report);
+					
+					recommendAnalysisRepository.deleteByReport(report);
+					
+					recommendAnalysisRepository.save(analysis);
+				}
 			}
 		}
 	}
