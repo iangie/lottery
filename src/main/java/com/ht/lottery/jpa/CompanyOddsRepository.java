@@ -25,4 +25,9 @@ public interface CompanyOddsRepository extends JpaRepository<CompanyOdds, Long>{
 	@Modifying
 	@Transactional
 	void update(Long id, double oddsWin2, double oddsDraw2, double oddsLose2);
+	
+	@Query("update CompanyOdds set matchScore=?2,matchResult=?3 where matchInfoId=?1")
+	@Modifying
+	@Transactional
+	void updateMatchResult(String matchInfoId, String matchScore, Integer matchResult);
 }

@@ -91,6 +91,53 @@ public class YaAnalysisDataService {
 			}
 		}
 		
+//		if(d2 > d1) {
+//			if(d1 > 0) {
+//				if(u2 < u1) {
+//					return 3;
+//				}else if( u2 > u1){
+//					return 0;
+//				}else {
+//					return 1;
+//				}
+//			}else if(d2 < 0){
+//				if(l2 < l1) {
+//					return 3;
+//				}else if( l2 > l1){
+//					return 0;
+//				}else {
+//					return 1;
+//				}
+//			}
+//			
+//		}else if(d2 < d1) {
+//			if(d2 > 0) {
+//				if(u2 < u1) {
+//					return 0;
+//				}else if( u2 > u1){
+//					return 3;
+//				}else {
+//					return 1;
+//				}
+//			}else if(d1 < 0) {
+//				if(l2 < l1) {
+//					return 0;
+//				}else if( l2 > l1){
+//					return 3;
+//				}else {
+//					return 1;
+//				}
+//			}
+//		}else if(d2 == d1 && d2 > -999) {
+//			if(u2 < u1) {
+//				return 0;
+//			}else if( u2 > u1){
+//				return 3;
+//			}else {
+//				return 1;
+//			}
+//		}
+		
 		return -1;
 	}
 }

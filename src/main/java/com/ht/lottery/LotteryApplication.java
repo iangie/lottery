@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ht.lottery.service.AnalysisDataService;
+import com.ht.lottery.service.BasicAnalysisDataService;
 import com.ht.lottery.service.CrawlerMatchInfoService;
 import com.ht.lottery.service.RecommendService;
 import com.ht.lottery.utils.DateUtils;
@@ -36,6 +37,25 @@ public class LotteryApplication {
 	
 	@Autowired
 	private RecommendService recommendService;
+	
+	@Autowired
+	private BasicAnalysisDataService basicAnalysisDataService; 
+	
+	@RequestMapping("/ba")
+	public String ba() {
+		String report = "20171218";
+		for (int i = 0; i < 2; i++) {
+			try {
+				String d = DateUtils.getDate(report, i);
+				logger.info("处理："+d);
+				basicAnalysisDataService.exe(d);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println("完成");
+		return "success";
+	}
 	
 	@RequestMapping("/f")
 	public String f() {
@@ -114,34 +134,27 @@ public class LotteryApplication {
 		return "success";
 	}
 	
-	@RequestMapping("updateYazhi")
-	public String updateYazhi() {
-		String report = "20171028";
-		for (int i = 0; i < 31; i++) {
-			try {
-				String d = DateUtils.getDate(report, i);
-				logger.info("处理："+d);
-				crawlerMatchInfoService.updateYazhi(d);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
+	@RequestMapping("updateYazhi/{report}")
+	public String updateYazhi(@PathVariable String report) {
+		logger.info("处理："+report);
+		crawlerMatchInfoService.updateYazhi(report);
 		logger.info("完成");
 		return "success";
 	}
 	
 	@RequestMapping("/updateOuzhi/{report}")
 	public String updateOuzhi(@PathVariable String report) {
-		System.out.println("开始");
+		logger.info("处理："+report);
 		this.crawlerMatchInfoService.updateOuzhi(report);
-		System.out.println("完成");
+		logger.info("完成");
 		return "success";
 	}
 	
 	@RequestMapping("/updateResult/{report}")
 	public String updateResult(@PathVariable String report) {
+		logger.info("处理："+report);
 		this.crawlerMatchInfoService.crawlerMatchResult(report);
-		System.out.println("完成");
+		logger.info("完成");
 		return "success";
 	}
 	

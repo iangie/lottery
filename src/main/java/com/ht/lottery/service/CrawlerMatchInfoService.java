@@ -187,6 +187,10 @@ public class CrawlerMatchInfoService {
 			this.matchInfoRepository.updateResult(matchInfo.getId(), score, matchInfo.getResult());
 			
 			this.recommendRepository.updateMatchResult(matchInfo.getId(), matchInfo.getResult());
+			
+			this.companyOddsRepository.updateMatchResult(matchInfo.getId(), score, matchInfo.getResult());
+			
+			this.companyYaOddsRepository.updateMatchResult(matchInfo.getId(), score, matchInfo.getResult());
 		}
 		
 		
@@ -318,7 +322,13 @@ public class CrawlerMatchInfoService {
 			double oddsDraw2 = Double.valueOf(tr1.select("td").get(1).text());
 			double oddsLose2 = Double.valueOf(tr1.select("td").get(2).text());
 			
-			CompanyOdds co = this.companyOddsRepository.getCompanyOddsByCompanyNameAndMatchInfoId(companyName, match.getId());
+			CompanyOdds co = null;
+			try {
+				co = this.companyOddsRepository.getCompanyOddsByCompanyNameAndMatchInfoId(companyName, match.getId());
+			} catch (Exception e) {
+				logger.error("错误:"+companyName+"="+match.getId());
+				e.printStackTrace();
+			}
 			if(co == null) {
 				co = new CompanyOdds();
 				co.setCompanyName(companyName);
@@ -402,23 +412,34 @@ public class CrawlerMatchInfoService {
 			double waterlevelLower2 = Double.valueOf(number_ya(body2.select("td").get(2).text()));
 			String concede2 = concede(body2.select("td").get(1).text());
 			
-			CompanyYaOdds co = new CompanyYaOdds();
-			co.setCompanyName(companyName);
-			co.setMatchInfoId(match.getId());
-			co.setMatchName(match.getMatchName());
-			co.setVs(match.getVs());
-			co.setConcede1(concede1);
-			co.setWaterlevelUpper1(waterlevelUpper1);
-			co.setWaterlevelLower1(waterlevelLower1);
-			co.setConcede2(concede2);
-			co.setWaterlevelUpper2(waterlevelUpper2);
-			co.setWaterlevelLower2(waterlevelLower2);
-			
-			co.setMatchScore(match.getScore());
-			
-			list.add(co);
+			CompanyYaOdds co = this.companyYaOddsRepository.getCompanyYaOddsByCompanyNameAndMatchInfoId(companyName, match.getId());
+			if(co == null) {
+				co = new CompanyYaOdds();
+				co.setCompanyName(companyName);
+				co.setMatchInfoId(match.getId());
+				co.setMatchName(match.getMatchName());
+				co.setVs(match.getVs());
+				co.setConcede1(concede1);
+				co.setWaterlevelUpper1(waterlevelUpper1);
+				co.setWaterlevelLower1(waterlevelLower1);
+				co.setConcede2(concede2);
+				co.setWaterlevelUpper2(waterlevelUpper2);
+				co.setWaterlevelLower2(waterlevelLower2);
+				
+				co.setMatchScore(match.getScore());
+				
+				list.add(co);
+			}else {
+				co.setConcede2(concede2);
+				co.setWaterlevelUpper2(waterlevelUpper2);
+				co.setWaterlevelLower2(waterlevelLower2);
+				
+				this.companyYaOddsRepository.update(co.getId(), concede2, waterlevelUpper2, waterlevelLower2);
+			}
 		}
-		companyYaOddsRepository.save(list);
+		if(list != null && list.size() > 0) {
+			companyYaOddsRepository.save(list);
+		}
 	}
 	
 	private MatchTeamInfo getTeamA(Document doc){

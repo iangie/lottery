@@ -149,11 +149,11 @@ public class AnalysisDataService {
 	
 	
 	public void exeYazhi() {
-		List<MatchInfo> matchInfos = matchInfoRepository.getMatchInfosByReportBetween("20170101", "20171231");
+		List<MatchInfo> matchInfos = matchInfoRepository.getMatchInfosByReportBetween("20170101", "20171217");
 		List<String> list = CompanyConstants.yalist;
 		for (String name : list) {
 			initYa(matchInfos, name);
-			break;
+//			break;
 		}
 	}
 	
@@ -180,5 +180,6 @@ public class AnalysisDataService {
 		
 		double rate = (double)success/total;
 		System.out.println(name+"=="+rate);
+		System.out.println(success+"=="+total);
 	}
 }
